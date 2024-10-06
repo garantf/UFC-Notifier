@@ -23,8 +23,8 @@ Before using this script, ensure you have the following:
 
    ```sh
    git clone https://github.com/garantf/UFC-Notifier.git
+   cd UFC-Notifier/
    pip install -r requirements.txt
-   cd UFC-Notif/
    ```
 
 3. Edit the `creds.py` file containing your email credentials:
