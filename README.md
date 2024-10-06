@@ -99,6 +99,9 @@ Please enter the fight order number (1=main event fight): 1
 Enter the duration (in hours) for how long the program should repeat: 10
 ```
 
+![IMG_9236](https://github.com/user-attachments/assets/5a6de179-e2a8-4378-9137-a9a4b3d99028)
+
+
 ## 🤝 Contributing
 
 Contributions are welcome! Feel free to submit a pull request or open an issue to help improve this project.
