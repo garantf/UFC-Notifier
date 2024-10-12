@@ -182,7 +182,9 @@ if __name__ == "__main__":
         print("It will also notify before a fight starts.")
         print("You can interrupt the program at any time by pressing Ctrl+C.\n")
 
-        event_number = input("Please enter the UFC event number: ")
+        print("**For a UFC fight night please write this for the following prompt \n (fight-night-<month in small letters>-dd-yyyy)\n**Exemple: fight-night-october-12-2024\n")
+
+        event_number = input("Please enter the UFC event number (exemple:300): ")
         fight_to_be_notified = input("Please enter the fight order number (1=main event fight): ")
         fight_to_be_notified = int(fight_to_be_notified)+1
         fight_to_be_notified = str(fight_to_be_notified)
