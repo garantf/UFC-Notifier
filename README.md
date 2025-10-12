@@ -1,115 +1,147 @@
 # 🥊 UFC Fight Notifier
 
-Welcome to the **UFC Fight Notifier**! This script allows you to receive email notifications about UFC events, such as when a specific fight is about to start or has ended. It uses web scraping to get real-time data from the UFC website and sends alerts directly to your email.
+Welcome to the **UFC Fight Notifier**!  
+This script sends **real-time email notifications** when a UFC fight is about to start or has just ended.  
+It automatically tracks fight cards live from the official UFC website and alerts you right before your selected fight begins. 💥
+
+---
 
 ## 🚀 Features
 
-- Receive notifications before a UFC fight starts.
-- Get notified when a specific fight ends.
-- Easy setup and configuration.
+- 📨 **Email alerts** when your chosen fight is about to start.  
+- 🏁 **Updates when fights end**, including winner, method, and round.  
+- 🕒 **Automatic Fight Night detection** — if you leave the event field blank, it finds **today’s UFC Fight Night** automatically.  
+- ⚡ **Accurate fight counter**, showing how many fights remain (including the current one).  
+- 🔔 **Smart notification** — sends an alert when the *previous fight* ends, so you can get ready in time.
+
+---
 
 ## 🛠️ Prerequisites
 
-Before using this script, ensure you have the following:
+Make sure you have the following before running the script:
 
-1. **Python 3** installed. 🐍
-2. Required packages installed (listed below).
-3. A Gmail account for sending notifications. Refer to this tutorial for help setting up a Gmail account: [YouTube tutorial](https://youtu.be/g_j6ILT-X0k).
+1. **Python 3** installed. 🐍  
+2. All required packages (see below).  
+3. A Gmail account with [App Passwords](https://support.google.com/accounts/answer/185833) enabled.
+
+---
 
 ## 📦 Installation
 
-1. Clone the repository or copy the script to your local machine.
-2. Install the necessary Python packages using pip:
-
-   ```sh
+1. Clone this repository or download the script files:
+   ```bash
    git clone https://github.com/garantf/UFC-Notifier.git
    cd UFC-Notifier/
+   ```
+
+2. Install dependencies:
+   ```bash
    pip install -r requirements.txt
    ```
 
-3. Edit the `creds.py` file containing your email credentials:
-
+3. Configure your email credentials in `creds.py`:
    ```python
    email_user = "your_email@example.com"
    email_password2 = "your_app_password"
    email_receiver = "receiver_email@example.com"
    ```
 
-   **Note**:
+> ⚠️ **Tip:**  
+> You must use an **App Password**, not your actual Gmail password.  
+> Learn how here → [Google App Password Guide](https://support.google.com/accounts/answer/185833)
 
-   - `email_user` is the email that will send the notifications.
-   - `email_password` is the [App Password](https://support.google.com/accounts/answer/185833) for your Gmail account, not your account password.
-   - To receive SMS notifications instead of an email, check your mobile provider's email-to-SMS gateway. For more information, visit [this website](https://email2sms.info/).
-
-> ⚠️ **Important**: The script uses Gmail's SMTP server for sending emails. Ensure you have [App Passwords](https://support.google.com/accounts/answer/185833) enabled on your Google account.
+---
 
 ## 📝 Usage Instructions
 
-Follow these steps to use the UFC Fight Notifier:
-
-1. **Run the script**:
-
-   ```sh
+1. **Run the program:**
+   ```bash
    python3 main.py
    ```
 
-2. **Enter Event and Fight Information**:
+2. **Choose the event:**
+   - To track a specific UFC numbered event, enter its number (e.g., `300`).  
+   - To track **today’s Fight Night**, just **press Enter** — the script will detect it automatically.
 
-   - When prompted, enter the UFC event number (e.g., for UFC 280, enter "280").
-   - Enter the fight order number you wish to be notified about (e.g., "1" for the main event).
+3. **Select your fight:**
+   - Enter the fight order number (`1` = main event, `2` = co-main, etc.).  
+   - The program will notify you **when the previous fight ends**, so you know yours is coming up.
 
-3. **Set Notification Duration**:
+4. **Set runtime duration:**
+   - Specify how many hours the program should keep checking for updates.
 
-   - Enter the number of hours for which the script should keep checking for updates.
+---
 
-4. **Receive Notifications**:
+## 🧠 Example
 
-   - The script will notify you before a fight starts and after it ends. 🎉
-
-## ⚠️ Error Handling
-
-- If an error occurs while sending the email, an error message will be printed in the console.
-- Make sure the UFC event number is correct, or the script won't be able to fetch fight details.
-
-## 🔒 Security Notes
-
-- Store your credentials (`creds.py`) securely. **Do not share** your email or password publicly.
-- To avoid exposing your credentials, consider using environment variables or a secure vault.
-
-## 🛑 Stopping the Script
-
-- You can stop the script at any time by pressing `Ctrl + C`. ⏹️
-
-## 📋 Example
-
-```
- _   _ ______  _____   _   _  _____  _____  _____ ______
+```bash
+ _   _ ______  _____   _   _  _____  _____  _____ ______ 
 | | | ||  ___|/  __ \ | \ | ||  _  ||_   _||_   _||  ___|
-| | | || |_   | /  \/ |  \| || | | |  | |    | |  | |_
-| | | ||  _|  | |     | . ` || | | |  | |    | |  |  _|
-| |_| || |    | \__/\ | |\  |\ \_/ /  | |   _| |_ | |
- \___/ \_|     \____/ \_| \_/ \___/   \_/   \___/ \_|
+| | | || |_   | /  \/ |  \| || | | |  | |    | |  | |_   
+| | | ||  _|  | |     | . ` || | | |  | |    | |  |  _|  
+| |_| || |    | \__/\ | |\  |\ \_/ /  | |   _| |_ | |    
+ \___/ \_|     \____/ \_| \_/ \___/   \_/   \___/ \_|    
 
 This program will notify you when a fight has ended.
-It will also notify you before a fight starts.
-You can interrupt the program at any time by pressing Ctrl+C.
+It will also notify before a fight starts.
 
-Please enter the UFC event number: 308
-Please enter the fight order number (1=main event fight): 1
-Enter the duration (in hours) for how long the program should repeat: 10
+**If left empty, the program automatically selects today’s Fight Night.**
+
+Please enter the UFC event number or leave blank for today's Fight Night:  
+👉 (User presses Enter)
+Auto-selected event: fight-night-october-11-2025  
+
+Please enter the fight order number (1=main event fight): 1  
+Enter duration (in hours) to run the program: 6
+```
+
+Output example:
+```
+✅ Completed fights so far:
+  - Jhonata Diniz def. Mario Pinto via KO in Round 2 (2:45)
+
+⏳ 4 fight(s) remaining including the current fight until your selected fight.
+
+🎯 Previous fight just ended — your fight is next!
 ```
 
 ![IMG_9236](https://github.com/user-attachments/assets/5a6de179-e2a8-4378-9137-a9a4b3d99028)
 
+---
 
-## 🤝 Contributing
+## ⚙️ Error Handling
 
-Contributions are welcome! Feel free to submit a pull request or open an issue to help improve this project.
-
-## 📄 License
-
-This project is licensed under the MIT License. Feel free to use it in your own projects. 😊
+- If an error occurs while sending emails, you’ll see a message in the console.  
+- If the UFC event number is invalid, the script will inform you instead of crashing.  
+- Connection or API errors will retry gracefully.
 
 ---
 
-**Happy Watching! 🥳**
+## 🔒 Security Notes
+
+- Keep your `creds.py` private — **never share it or upload it publicly**.  
+- You may use environment variables or a `.env` file for improved security.
+
+---
+
+## 🛑 Stopping the Script
+
+Press `Ctrl + C` at any time to safely exit. ⏹️
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome!  
+Open an issue or submit a pull request if you’d like to add new features (like Telegram or Discord alerts).
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License**.  
+Feel free to fork and modify for personal use.
+
+---
+
+**👊 Stay ready — never miss the walkout again! 🥳**
