@@ -1,0 +1,5 @@
+creds.py
+fight-data.json
+__pycache__/
+*.pyc
+.claude/
