@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""UFC Fight Notifier — SMS alerts before your selected fights start."""
+"""UFC Fight Notifier — SMS and/or email alerts before your selected fights start."""
 
 import requests
 import creds
@@ -7,7 +7,9 @@ import time
 import os
 import sys
 import json
+import smtplib
 from dataclasses import dataclass, field
+from email.message import EmailMessage
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 from twilio.rest import Client
@@ -29,6 +31,11 @@ auth_token  = creds.auth_token
 receiver_phone = creds.phone_receiver
 client = Client(account_sid, auth_token)
 MESSAGING_SERVICE_SID = creds.messaging_service_sid
+
+# ── Email ───────────────────────────────────────────────────────────────────────
+EMAIL_USER     = creds.email_user
+EMAIL_PASSWORD = creds.email_password2   # Gmail App Password
+EMAIL_RECEIVER = creds.email_receiver
 
 # ── Config ─────────────────────────────────────────────────────────────────────
 DATA_FILE            = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fight-data.json")
@@ -314,7 +321,34 @@ def send_sms(body: str) -> bool:
         return False
 
 
-def check_and_notify(fight_card: list, fight_states: dict[int, FightState]) -> None:
+def send_email(body: str) -> bool:
+    try:
+        msg = EmailMessage()
+        msg["Subject"] = body.splitlines()[0]   # first line as subject
+        msg["From"]    = EMAIL_USER
+        msg["To"]      = EMAIL_RECEIVER
+        msg.set_content(body)
+        with smtplib.SMTP("smtp.gmail.com", 587) as smtp:
+            smtp.ehlo()
+            smtp.starttls()
+            smtp.login(EMAIL_USER, EMAIL_PASSWORD)
+            smtp.send_message(msg)
+        return True
+    except Exception as e:
+        console.print(f"[red]Email error: {e}[/red]")
+        return False
+
+
+def send_notification(body: str, methods: set[str]) -> bool:
+    """Send via all chosen methods. Returns True if at least one succeeded."""
+    ok = False
+    if "sms"   in methods: ok = send_sms(body)   or ok
+    if "email" in methods: ok = send_email(body)  or ok
+    return ok
+
+
+def check_and_notify(fight_card: list, fight_states: dict[int, FightState],
+                     notify_methods: set[str]) -> None:
     """
     For each tracked fight:
       - Start the 3-alert sequence when the fight before it ends (or it goes Live).
@@ -342,7 +376,7 @@ def check_and_notify(fight_card: list, fight_states: dict[int, FightState]) -> N
                 2: f"UFC ALERT 🔔\n{state.red} vs {state.blue}\nStarting very soon!  (2/3)",
                 3: f"UFC ALERT 🔴\n{state.red} vs {state.blue}\nIT'S TIME — turn it on!  (3/3)",
             }
-            if send_sms(messages[n]):
+            if send_notification(messages[n], notify_methods):
                 state.notif_count     = n
                 state.last_notif_time = datetime.now()
                 state.log.append({"time": datetime.now().strftime("%H:%M:%S"), "label": f"Alert {n}/3"})
@@ -350,7 +384,8 @@ def check_and_notify(fight_card: list, fight_states: dict[int, FightState]) -> N
 
 # ── Main loop ────────────────────────────────────────────────────────────────────
 
-def run_monitor(fight_id: str, fight_states: dict[int, FightState]) -> None:
+def run_monitor(fight_id: str, fight_states: dict[int, FightState],
+                notify_methods: set[str]) -> None:
     error_streak   = 0
     tracked_orders = set(fight_states.keys())
 
@@ -401,7 +436,7 @@ def run_monitor(fight_id: str, fight_states: dict[int, FightState]) -> None:
         console.print(f"\n[dim]  Last updated: {now}  ·  Press Ctrl+C to exit[/dim]")
 
         # ── Notify ───────────────────────────────────────────────────────────
-        check_and_notify(fight_card, fight_states)
+        check_and_notify(fight_card, fight_states, notify_methods)
 
         if all(s.is_done() for s in fight_states.values()):
             break
@@ -439,8 +474,8 @@ if __name__ == "__main__":
         console.print(Panel(
             "[bold]Welcome to UFC Fight Notifier[/bold]\n\n"
             "Select one or more fights to track.\n"
-            "For each fight you'll receive [yellow]3 SMS alerts[/yellow] when it's about to start,\n"
-            "[dim]2 minutes apart[/dim] — so you have time to tune in.\n\n"
+            "For each fight you'll receive [yellow]3 alerts[/yellow] when it's about to start,\n"
+            "[dim]2 minutes apart[/dim] — via SMS, email, or both.\n\n"
             "The program stops after the last selected fight has been fully notified.\n\n"
             "[dim]Press Space to select · Enter to confirm · Ctrl+C to quit[/dim]",
             border_style="yellow",
@@ -520,14 +555,31 @@ if __name__ == "__main__":
             order = int(input("  Fight order: "))
             fight_states = {order: FightState(order=order, red="?", blue="?")}
 
+        # ── Notification method ───────────────────────────────────────────────
+        method_choices = questionary.checkbox(
+            "How do you want to receive alerts?",
+            choices=[
+                questionary.Choice("SMS  (Twilio)",  value="sms",   checked=True),
+                questionary.Choice("Email  (Gmail)", value="email", checked=False),
+            ],
+            style=SELECTOR_STYLE,
+        ).ask()
+
+        if not method_choices:
+            raise KeyboardInterrupt
+
+        notify_methods = set(method_choices)
+
         console.print()
+        method_label = " + ".join(sorted(notify_methods, reverse=True))   # sms + email
         console.print(
             f"  [green]✓[/green] Tracking [bold]{len(fight_states)}[/bold] fight(s)  ·  "
-            f"[dim]{NOTIFS_PER_FIGHT} alerts per fight, {NOTIF_GAP_SECONDS // 60} min apart[/dim]"
+            f"[dim]{NOTIFS_PER_FIGHT} alerts per fight, {NOTIF_GAP_SECONDS // 60} min apart  "
+            f"· via {method_label}[/dim]"
         )
         console.print()
 
-        run_monitor(fight_id, fight_states)
+        run_monitor(fight_id, fight_states, notify_methods)
 
     except KeyboardInterrupt:
         console.print("\n[yellow]Interrupted. Goodbye.[/yellow]")
