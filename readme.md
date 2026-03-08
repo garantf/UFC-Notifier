@@ -4,10 +4,11 @@
 
 ### Fight Notifier
 
-**Get SMS alerts on your phone before your selected UFC fights start.**
+**Get SMS and/or email alerts before your selected UFC fights start.**
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python&logoColor=white)
 ![Twilio](https://img.shields.io/badge/SMS-Twilio-red?logo=twilio&logoColor=white)
+![Gmail](https://img.shields.io/badge/Email-Gmail-red?logo=gmail&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 </div>
@@ -17,8 +18,9 @@
 ## How it works
 
 1. Run the script and enter the UFC event number (or leave blank for today's Fight Night).
-2. The full fight card loads — use the **arrow-key selector** to pick one or more fights you want alerts for.
-3. The program monitors the live event and sends you **3 SMS alerts** per fight when it's about to start, spaced **2 minutes apart**:
+2. The full fight card loads — use the **arrow-key selector** to pick one or more fights.
+3. Choose how to receive alerts: **SMS**, **Email**, or **both**.
+4. The program monitors the live event and sends you **3 alerts** per fight when it's about to start, spaced **2 minutes apart**:
 
 | Alert | Timing | Message |
 |:---:|---|---|
@@ -26,7 +28,7 @@
 | 2/3 | +2 min | *"Starting very soon!"* |
 | 3/3 | +4 min | *"IT'S TIME — turn it on!"* |
 
-4. The program exits automatically once all selected fights have sent their 3 alerts.
+5. The program exits automatically once all selected fights have sent their 3 alerts.
 
 ---
 
@@ -75,6 +77,10 @@
    ◯   4.  Sergei Pavlovich  vs  Tai Tuivasa  [Prelim]
    ◯   5.  Joaquin Buckley  vs  Vicente Luque  [Prelim]
    ◯   6.  Jailton Almeida  vs  Curtis Blaydes  [Prelim]
+
+? How do you want to receive alerts?
+ ❯ ◉ SMS  (Twilio)
+   ◯ Email  (Gmail)
 ```
 
 ### Live monitoring view
@@ -130,9 +136,8 @@
 ## Prerequisites
 
 - Python 3.10+
-- A [Twilio](https://www.twilio.com/) account with:
-  - Account SID and Auth Token
-  - A Messaging Service SID
+- **For SMS** — a [Twilio](https://www.twilio.com/) account with an Account SID, Auth Token, and Messaging Service SID
+- **For Email** — a Gmail account with an [App Password](https://support.google.com/accounts/answer/185833) enabled
 
 ---
 
@@ -153,10 +158,16 @@ cp creds.example.py creds.py
 Edit `creds.py`:
 
 ```python
+# Twilio — for SMS
 account_sid           = 'ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 auth_token            = 'your_auth_token'
 messaging_service_sid = 'MGxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-phone_receiver        = '+15140000000'   # your number in E.164 format
+phone_receiver        = '+15140000000'      # E.164 format
+
+# Gmail — for Email
+email_user      = 'your_gmail@gmail.com'
+email_password2 = 'your_16_char_app_password'
+email_receiver  = 'receiver@example.com'   # or number@txt.bell.ca for email-to-SMS
 ```
 
 ---
@@ -171,6 +182,7 @@ python3 main.py
 |---|---|
 | **Event number** | Leave blank for today's Fight Night, or enter a number (`300` for UFC 300) or a slug (`fight-night-march-22-2025`) |
 | **Fight selection** | `↑ / ↓` to navigate, `Space` to check/uncheck, `Enter` to confirm |
+| **Alert method** | Choose SMS, Email, or both — `Space` to toggle, `Enter` to confirm |
 
 ---
 
@@ -182,7 +194,7 @@ All tunable constants live at the top of `main.py`:
 |---|---|---|
 | `POLL_INTERVAL` | `60` | Seconds between live API refreshes |
 | `NOTIF_GAP_SECONDS` | `120` | Seconds between each of the 3 alerts |
-| `NOTIFS_PER_FIGHT` | `3` | Number of SMS alerts per fight |
+| `NOTIFS_PER_FIGHT` | `3` | Number of alerts per fight |
 | `MAX_CONSECUTIVE_ERRORS` | `5` | API failures tolerated before exiting |
 
 ---
@@ -195,7 +207,8 @@ All tunable constants live at the top of `main.py`:
 | `beautifulsoup4` | Scrapes the event page to find the fight ID |
 | `twilio` | Sends SMS notifications |
 | `rich` | Terminal UI — tables, panels, colors |
-| `questionary` | Interactive arrow-key fight selector |
+| `questionary` | Interactive arrow-key fight & method selector |
+| `smtplib` *(stdlib)* | Sends email notifications via Gmail SMTP |
 
 ---
 
