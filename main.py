@@ -358,14 +358,11 @@ def check_and_notify(fight_card: list, fight_states: dict[int, FightState],
         if state.is_done():
             continue
 
-        fight_before  = next((f for f in fight_card if f.get("FightOrder") == order + 1), None)
-        target_fight  = next((f for f in fight_card if f.get("FightOrder") == order),     None)
+        fight_before = next((f for f in fight_card if f.get("FightOrder") == order + 1), None)
 
-        # Trigger the sequence when the previous fight ends or the target goes live
+        # Trigger the sequence only when the fight before ends
         if not state.sequence_started:
-            prev_done   = fight_before is None or fight_before.get("Status") == "Final"
-            target_live = target_fight is not None and target_fight.get("Status") in {"Live", "Final"}
-            if prev_done or target_live:
+            if fight_before is None or fight_before.get("Status") == "Final":
                 state.sequence_started = True
 
         # Send the next alert if the sequence is active and the gap has elapsed
