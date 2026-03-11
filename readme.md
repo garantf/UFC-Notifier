@@ -212,12 +212,6 @@ All tunable constants live at the top of `main.py`:
 
 ---
 
-## Security
-
-`creds.py` is in `.gitignore` and will never be committed. Use `creds.example.py` as the reference template. Never hardcode credentials in `main.py`.
-
----
-
 ## License
 
 MIT © [garantf](https://github.com/garantf)
